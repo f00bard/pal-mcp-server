@@ -472,8 +472,20 @@ class GeminiModelProvider(RegistryBackedProviderMixin, ModelProvider):
 
         # Helper to find best model from candidates
         def find_best(candidates: list[str]) -> Optional[str]:
-            """Return best model from candidates (sorted for consistency)."""
-            return sorted(candidates, reverse=True)[0] if candidates else None
+            """Return the highest-capability candidate by intelligence/capability rank.
+
+            Uses each model's effective capability rank (driven by intelligence_score)
+            so selection tracks real capability rather than lexical ordering. Ties break
+            reverse-alphabetically for deterministic results.
+            """
+            if not candidates:
+                return None
+
+            def rank(model_name: str) -> int:
+                caps = capability_map.get(model_name)
+                return caps.get_effective_capability_rank() if caps else 0
+
+            return max(candidates, key=lambda m: (rank(m), m))
 
         if category == ToolModelCategory.EXTENDED_REASONING:
             # For extended reasoning, prefer models with thinking support

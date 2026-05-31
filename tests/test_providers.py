@@ -118,7 +118,7 @@ class TestGeminiProvider:
         assert provider.validate_model_name("pro")
 
         capabilities = provider.get_capabilities("flash")
-        assert capabilities.model_name == "gemini-2.5-flash"
+        assert capabilities.model_name == "gemini-3.5-flash"
 
     @patch("google.genai.Client")
     def test_generate_content(self, mock_client_class):
@@ -212,7 +212,7 @@ class TestOpenAIProvider:
         assert provider.validate_model_name("gpt-5.2")
         assert provider.validate_model_name("gpt-5.1-codex")
         assert provider.validate_model_name("gpt-5.1-codex-mini")
-        assert not provider.validate_model_name("gpt-4o")
+        assert provider.validate_model_name("gpt-4o")  # gpt-4o is now part of the catalog
         assert not provider.validate_model_name("invalid-model")
 
     def test_openai_models_do_not_support_extended_thinking(self):
