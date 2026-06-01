@@ -71,10 +71,10 @@ class TestModelRestrictionService:
                 assert service.is_allowed(ProviderType.OPENAI, "o4-mini")
                 assert not service.is_allowed(ProviderType.OPENAI, "o3")
 
-                # Check Google models ("pro" -> gemini-3.1-pro-preview, "flash" -> gemini-3.5-flash)
+                # Check Google models (default: "pro" -> gemini-3-pro-preview, "flash" -> gemini-2.5-flash)
                 assert service.is_allowed(ProviderType.GOOGLE, "flash")
                 assert service.is_allowed(ProviderType.GOOGLE, "pro")
-                assert service.is_allowed(ProviderType.GOOGLE, "gemini-3.1-pro-preview")
+                assert service.is_allowed(ProviderType.GOOGLE, "gemini-3-pro-preview")
 
     def test_case_insensitive_and_whitespace_handling(self):
         """Test that model names are case-insensitive and whitespace is trimmed."""
@@ -309,17 +309,17 @@ class TestProviderIntegration:
             # Should allow "flash" alias
             assert provider.validate_model_name("flash")
 
-            # Should allow getting capabilities for "flash" ("flash" -> gemini-3.5-flash)
+            # Should allow getting capabilities for "flash" (default: "flash" -> gemini-2.5-flash)
             capabilities = provider.get_capabilities("flash")
-            assert capabilities.model_name == "gemini-3.5-flash"
+            assert capabilities.model_name == "gemini-2.5-flash"
 
             # Canonical form should also be allowed now that alias is on the allowlist
-            assert provider.validate_model_name("gemini-3.5-flash")
+            assert provider.validate_model_name("gemini-2.5-flash")
             # Unrelated models remain blocked
             assert not provider.validate_model_name("pro")
             assert not provider.validate_model_name("gemini-2.5-pro")
 
-    @patch.dict(os.environ, {"GOOGLE_ALLOWED_MODELS": "gemini-3.5-flash"})
+    @patch.dict(os.environ, {"GOOGLE_ALLOWED_MODELS": "gemini-2.5-flash"})
     def test_gemini_parameter_order_edge_case_full_name_only(self):
         """Test parameter order with only full name allowed, not alias.
 
@@ -335,9 +335,9 @@ class TestProviderIntegration:
         provider = GeminiModelProvider(api_key="test-key")
 
         # Should allow full name
-        assert provider.validate_model_name("gemini-3.5-flash")
+        assert provider.validate_model_name("gemini-2.5-flash")
 
-        # Should also allow alias that resolves to allowed full name ("flash" -> gemini-3.5-flash)
+        # Should also allow alias that resolves to allowed full name (default: "flash" -> gemini-2.5-flash)
         # This works because is_allowed checks both resolved_name and original_name
         assert provider.validate_model_name("flash")
 
@@ -612,9 +612,9 @@ class TestShorthandRestrictions:
             assert not openai_provider.validate_model_name("o4-mini")  # Unrelated model still blocked
             assert not openai_provider.validate_model_name("o3-mini")
 
-            # Test Gemini provider ("flash" -> gemini-3.5-flash)
+            # Test Gemini provider (default: "flash" -> gemini-2.5-flash)
             assert gemini_provider.validate_model_name("flash")  # Should work with shorthand
-            assert gemini_provider.validate_model_name("gemini-3.5-flash")  # Canonical allowed
+            assert gemini_provider.validate_model_name("gemini-2.5-flash")  # Canonical allowed
             assert not gemini_provider.validate_model_name("pro")  # Not allowed
 
     @patch.dict(os.environ, {"OPENAI_ALLOWED_MODELS": "o3mini,mini,o4-mini"})

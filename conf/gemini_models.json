@@ -29,7 +29,9 @@
       "model_name": "gemini-3-pro-preview",
       "friendly_name": "Gemini Pro 3.0 Preview",
       "aliases": [
-        "gemini-3.0-pro"
+        "pro",
+        "gemini3",
+        "gemini-pro"
       ],
       "intelligence_score": 18,
       "description": "Deep reasoning + thinking mode (1M context) - Complex problems, architecture, deep analysis",
@@ -92,7 +94,8 @@
       "model_name": "gemini-2.0-flash-lite",
       "friendly_name": "Gemini (Flash Lite 2.0)",
       "aliases": [
-        "flashlite-2.0"
+        "flashlite",
+        "flash-lite"
       ],
       "intelligence_score": 7,
       "description": "Gemini 2.0 Flash Lite (1M context) - Lightweight fast model, text-only",
@@ -110,6 +113,7 @@
       "model_name": "gemini-2.5-flash",
       "friendly_name": "Gemini (Flash 2.5)",
       "aliases": [
+        "flash",
         "flash2.5"
       ],
       "intelligence_score": 10,
@@ -130,9 +134,6 @@
       "model_name": "gemini-3.1-pro-preview",
       "friendly_name": "Gemini 3.1 Pro Preview",
       "aliases": [
-        "pro",
-        "gemini-pro",
-        "gemini3",
         "gemini-3.1-pro",
         "gemini-pro-latest"
       ],
@@ -149,13 +150,17 @@
       "supports_temperature": true,
       "max_image_size_mb": 32.0,
       "max_thinking_tokens": 32768,
-      "allow_code_generation": true
+      "allow_code_generation": true,
+      "dynamic_aliases": [
+        "pro",
+        "gemini3",
+        "gemini-pro"
+      ]
     },
     {
       "model_name": "gemini-3.5-flash",
       "friendly_name": "Gemini 3.5 Flash",
       "aliases": [
-        "flash",
         "flash3.5",
         "gemini-flash-latest"
       ],
@@ -171,14 +176,15 @@
       "supports_images": true,
       "supports_temperature": true,
       "max_image_size_mb": 20.0,
-      "max_thinking_tokens": 24576
+      "max_thinking_tokens": 24576,
+      "dynamic_aliases": [
+        "flash"
+      ]
     },
     {
       "model_name": "gemini-3.1-flash-lite",
       "friendly_name": "Gemini 3.1 Flash-Lite",
       "aliases": [
-        "flash-lite",
-        "flashlite",
         "gemini-flash-lite-latest"
       ],
       "intelligence_score": 9,
@@ -193,7 +199,11 @@
       "supports_images": true,
       "supports_temperature": true,
       "max_image_size_mb": 20.0,
-      "max_thinking_tokens": 16384
+      "max_thinking_tokens": 16384,
+      "dynamic_aliases": [
+        "flash-lite",
+        "flashlite"
+      ]
     },
     {
       "model_name": "gemini-3-flash-preview",

@@ -98,8 +98,8 @@ class TestModelSelection:
             ModelProviderRegistry.register_provider(ProviderType.OPENAI, OpenAIModelProvider)
 
             model = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.EXTENDED_REASONING)
-            # OpenAI prefers the newest flagship gpt-5.5 for extended reasoning
-            assert model == "gpt-5.5"
+            # Upstream default: OpenAI prefers gpt-5.1-codex for extended reasoning
+            assert model == "gpt-5.1-codex"
 
     def test_extended_reasoning_with_gemini_only(self):
         """Test EXTENDED_REASONING prefers pro when only Gemini is available."""
@@ -133,8 +133,8 @@ class TestModelSelection:
             ModelProviderRegistry.register_provider(ProviderType.OPENAI, OpenAIModelProvider)
 
             model = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.FAST_RESPONSE)
-            # OpenAI now prefers gpt-5.4-mini for fast response (based on our new preference order)
-            assert model == "gpt-5.4-mini"
+            # Upstream default: OpenAI prefers gpt-5.2 for fast response
+            assert model == "gpt-5.2"
 
     def test_fast_response_with_gemini_only(self):
         """Test FAST_RESPONSE prefers flash when only Gemini is available."""
@@ -167,8 +167,8 @@ class TestModelSelection:
             ModelProviderRegistry.register_provider(ProviderType.OPENAI, OpenAIModelProvider)
 
             model = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.BALANCED)
-            # OpenAI prefers gpt-5.5 for balanced (based on our new preference order)
-            assert model == "gpt-5.5"
+            # Upstream default: OpenAI prefers gpt-5.2 for balanced
+            assert model == "gpt-5.2"
 
     def test_no_category_uses_balanced_logic(self):
         """Test that no category specified uses balanced logic."""
@@ -195,7 +195,7 @@ class TestFlexibleModelSelection:
                 "env": {"OPENAI_API_KEY": "test-key"},
                 "provider_type": ProviderType.OPENAI,
                 "category": ToolModelCategory.EXTENDED_REASONING,
-                "expected": "gpt-5.5",  # Newest flagship prioritized for reasoning
+                "expected": "gpt-5.1-codex",  # Upstream default reasoning preference
             },
             # Case 2: Gemini provider for fast response
             {
@@ -209,7 +209,7 @@ class TestFlexibleModelSelection:
                 "env": {"OPENAI_API_KEY": "test-key"},
                 "provider_type": ProviderType.OPENAI,
                 "category": ToolModelCategory.FAST_RESPONSE,
-                "expected": "gpt-5.4-mini",  # Based on new preference order
+                "expected": "gpt-5.2",  # Upstream default fast response preference
             },
         ]
 
@@ -233,6 +233,42 @@ class TestFlexibleModelSelection:
 
                 model = ModelProviderRegistry.get_preferred_fallback_model(case["category"])
                 assert model == case["expected"], f"Failed for case: {case}, got {model}"
+
+
+class TestDynamicModelSelectionFlagOn:
+    """Flag-on coverage: DYNAMIC_MODEL_SELECTION opts into newest-flagship selection.
+
+    Selection reads the flag at call time, so it is enough to set the env var before
+    invoking get_preferred_fallback_model on a freshly registered OpenAI provider.
+    """
+
+    def teardown_method(self):
+        ModelProviderRegistry.clear_cache()
+        for provider_type in list(ProviderType):
+            ModelProviderRegistry.unregister_provider(provider_type)
+
+    def test_openai_selection_prefers_newest_flagships_under_flag(self):
+        """With the flag on, OpenAI prefers gpt-5.5 (reasoning/balanced) and gpt-5.4-mini (fast)."""
+        ModelProviderRegistry.clear_cache()
+        for provider_type in list(ProviderType):
+            ModelProviderRegistry.unregister_provider(provider_type)
+
+        with patch.dict(
+            os.environ,
+            {"OPENAI_API_KEY": "test-key", "DYNAMIC_MODEL_SELECTION": "1"},
+            clear=False,
+        ):
+            from providers.openai import OpenAIModelProvider
+
+            ModelProviderRegistry.register_provider(ProviderType.OPENAI, OpenAIModelProvider)
+
+            extended = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.EXTENDED_REASONING)
+            fast = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.FAST_RESPONSE)
+            balanced = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.BALANCED)
+
+            assert extended == "gpt-5.5"
+            assert fast == "gpt-5.4-mini"
+            assert balanced == "gpt-5.5"
 
 
 class TestCustomProviderFallback:

@@ -94,9 +94,9 @@ class TestAutoModeComprehensive:
                     "OPENROUTER_API_KEY": None,
                 },
                 {
-                    "EXTENDED_REASONING": "gpt-5.5",  # Newest flagship prioritized for reasoning
-                    "FAST_RESPONSE": "gpt-5.4-mini",  # Prefer gpt-5.4-mini for speed
-                    "BALANCED": "gpt-5.5",  # Prefer gpt-5.5 for balanced
+                    "EXTENDED_REASONING": "gpt-5.1-codex",  # Upstream default reasoning preference
+                    "FAST_RESPONSE": "gpt-5.2",  # Upstream default fast preference
+                    "BALANCED": "gpt-5.2",  # Upstream default balanced preference
                 },
             ),
             # Only X.AI API available

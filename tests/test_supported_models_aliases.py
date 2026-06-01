@@ -1,8 +1,12 @@
 """Test the MODEL_CAPABILITIES aliases structure across all providers."""
 
+import os
+from unittest.mock import patch
+
 from providers.dial import DIALModelProvider
 from providers.gemini import GeminiModelProvider
 from providers.openai import OpenAIModelProvider
+from providers.registries.gemini import GeminiModelRegistry
 from providers.xai import XAIModelProvider
 
 
@@ -18,29 +22,55 @@ class TestSupportedModelsAliases:
             assert hasattr(config, "aliases"), f"{model_name} must have aliases attribute"
             assert isinstance(config.aliases, list), f"{model_name} aliases must be a list"
 
-        # Test specific aliases
-        # "flash" now maps to gemini-3.5-flash; gemini-2.5-flash carries "flash2.5"
-        assert "flash" in provider.MODEL_CAPABILITIES["gemini-3.5-flash"].aliases
+        # Test specific aliases (default behaviour: bare aliases stay on the upstream models)
+        # Bare "flash" stays on gemini-2.5-flash; the newer gemini-3.5-flash carries distinct
+        # aliases ("flash3.5"/"gemini-flash-latest") plus a dynamic_aliases entry for "flash".
+        assert "flash" in provider.MODEL_CAPABILITIES["gemini-2.5-flash"].aliases
         assert "flash2.5" in provider.MODEL_CAPABILITIES["gemini-2.5-flash"].aliases
-        # "pro" now maps to gemini-3.1-pro-preview; gemini-3-pro-preview carries "gemini-3.0-pro"
-        assert "pro" in provider.MODEL_CAPABILITIES["gemini-3.1-pro-preview"].aliases
-        assert "gemini-3.0-pro" in provider.MODEL_CAPABILITIES["gemini-3-pro-preview"].aliases
+        assert "flash3.5" in provider.MODEL_CAPABILITIES["gemini-3.5-flash"].aliases
+        assert "gemini-flash-latest" in provider.MODEL_CAPABILITIES["gemini-3.5-flash"].aliases
+        assert "flash" in provider.MODEL_CAPABILITIES["gemini-3.5-flash"].dynamic_aliases
+        # Bare "pro" stays on gemini-3-pro-preview; gemini-3.1-pro-preview carries distinct aliases
+        # ("gemini-3.1-pro"/"gemini-pro-latest") plus a dynamic_aliases entry for "pro".
+        assert "pro" in provider.MODEL_CAPABILITIES["gemini-3-pro-preview"].aliases
+        assert "gemini-3.1-pro" in provider.MODEL_CAPABILITIES["gemini-3.1-pro-preview"].aliases
+        assert "gemini-pro-latest" in provider.MODEL_CAPABILITIES["gemini-3.1-pro-preview"].aliases
+        assert "pro" in provider.MODEL_CAPABILITIES["gemini-3.1-pro-preview"].dynamic_aliases
         assert "flash-2.0" in provider.MODEL_CAPABILITIES["gemini-2.0-flash"].aliases
         assert "flash2" in provider.MODEL_CAPABILITIES["gemini-2.0-flash"].aliases
-        # bare flash-lite/flashlite now map to gemini-3.1-flash-lite; 2.0 lite carries "flashlite-2.0"
-        assert "flashlite-2.0" in provider.MODEL_CAPABILITIES["gemini-2.0-flash-lite"].aliases
-        assert "flash-lite" in provider.MODEL_CAPABILITIES["gemini-3.1-flash-lite"].aliases
+        # Bare flash-lite/flashlite stay on gemini-2.0-flash-lite; gemini-3.1-flash-lite carries
+        # "gemini-flash-lite-latest" plus dynamic_aliases entries for "flash-lite"/"flashlite".
+        assert "flash-lite" in provider.MODEL_CAPABILITIES["gemini-2.0-flash-lite"].aliases
+        assert "flashlite" in provider.MODEL_CAPABILITIES["gemini-2.0-flash-lite"].aliases
+        assert "gemini-flash-lite-latest" in provider.MODEL_CAPABILITIES["gemini-3.1-flash-lite"].aliases
+        assert "flash-lite" in provider.MODEL_CAPABILITIES["gemini-3.1-flash-lite"].dynamic_aliases
 
-        # Test alias resolution
-        assert provider._resolve_model_name("flash") == "gemini-3.5-flash"
-        assert provider._resolve_model_name("pro") == "gemini-3.1-pro-preview"
+        # Test alias resolution (default: upstream targets)
+        assert provider._resolve_model_name("flash") == "gemini-2.5-flash"
+        assert provider._resolve_model_name("pro") == "gemini-3-pro-preview"
         assert provider._resolve_model_name("flash-2.0") == "gemini-2.0-flash"
         assert provider._resolve_model_name("flash2") == "gemini-2.0-flash"
-        assert provider._resolve_model_name("flashlite") == "gemini-3.1-flash-lite"
+        assert provider._resolve_model_name("flashlite") == "gemini-2.0-flash-lite"
 
         # Test case insensitive resolution
-        assert provider._resolve_model_name("Flash") == "gemini-3.5-flash"
-        assert provider._resolve_model_name("PRO") == "gemini-3.1-pro-preview"
+        assert provider._resolve_model_name("Flash") == "gemini-2.5-flash"
+        assert provider._resolve_model_name("PRO") == "gemini-3-pro-preview"
+
+    def test_gemini_bare_alias_remaps_to_newest_under_flag(self):
+        """Flag-on coverage: DYNAMIC_MODEL_SELECTION remaps bare aliases to the newest models.
+
+        Alias remaps are applied when the registry is constructed, so the env var must be set
+        before building a fresh registry instance under the patched environment.
+        """
+        with patch.dict(os.environ, {"DYNAMIC_MODEL_SELECTION": "1"}, clear=False):
+            registry = GeminiModelRegistry()
+
+            # Bare aliases now point at the newest models instead of the upstream targets.
+            assert registry.alias_map["flash"] == "gemini-3.5-flash"
+            assert registry.alias_map["pro"] == "gemini-3.1-pro-preview"
+            assert registry.alias_map["flash-lite"] == "gemini-3.1-flash-lite"
+            assert registry.resolve("flash").model_name == "gemini-3.5-flash"
+            assert registry.resolve("pro").model_name == "gemini-3.1-pro-preview"
 
     def test_openai_provider_aliases(self):
         """Test OpenAI provider's alias structure."""
