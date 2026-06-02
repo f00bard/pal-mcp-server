@@ -387,3 +387,57 @@ class TestOpenRouterFunctionality:
         # Registry should be initialized
         assert hasattr(provider, "_registry")
         assert provider._registry is not None
+
+
+class TestOpenRouterCatalogue:
+    """Durable sanity checks on conf/openrouter_models.json (no brittle hard-coded model IDs)."""
+
+    @staticmethod
+    def _models():
+        import json
+        import os
+
+        path = os.path.join(os.path.dirname(__file__), "..", "conf", "openrouter_models.json")
+        with open(path) as fh:
+            return json.load(fh)["models"]
+
+    def test_open_model_families_present(self):
+        """Each important open-weight family has at least one catalogue entry.
+
+        Guards against the open-model side of the catalogue silently regressing. Matches by
+        a substring that is stable across version bumps rather than a specific model ID.
+        """
+        ids = [m["model_name"].lower() for m in self._models()]
+        families = {
+            "deepseek": "deepseek/",
+            "qwen": "qwen/",
+            "kimi": "moonshotai/",
+            "glm": "z-ai/",
+            "minimax": "minimax/",
+            "gemma": "google/gemma",
+            "mistral": "mistralai/",
+            "mimo": "mimo",
+            "gpt-oss": "gpt-oss",
+            "llama4": "meta-llama/llama-4",
+            "nemotron": "nemotron",
+        }
+        missing = [fam for fam, needle in families.items() if not any(needle in i for i in ids)]
+        assert not missing, f"open-model families absent from OpenRouter catalogue: {missing}"
+
+    def test_entries_well_formed(self):
+        """Every entry has a positive context window/output, a sane score, and at least one alias."""
+        for m in self._models():
+            name = m["model_name"]
+            assert m.get("context_window", 0) > 0, f"{name}: context_window must be > 0"
+            assert m.get("max_output_tokens", 0) > 0, f"{name}: max_output_tokens must be > 0"
+            assert 1 <= m.get("intelligence_score", 0) <= 20, f"{name}: intelligence_score out of range"
+            assert m.get("aliases"), f"{name}: must declare at least one alias"
+
+    def test_no_duplicate_aliases(self):
+        """No alias is claimed by two OpenRouter models (ambiguous resolution)."""
+        seen: dict[str, str] = {}
+        for m in self._models():
+            for alias in m.get("aliases", []):
+                key = alias.lower()
+                assert key not in seen, f"alias '{alias}' claimed by both {seen[key]} and {m['model_name']}"
+                seen[key] = m["model_name"]
