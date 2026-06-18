@@ -202,6 +202,13 @@ cd pal-mcp-server
 
 PAL activates any provider that has credentials in your `.env`. See `.env.example` for deeper customization.
 
+### Model selection & restrictions
+
+- **`*_ALLOWED_MODELS`** (allow-list) and **`*_DISALLOWED_MODELS`** (block-list) constrain which models each provider may use. A block-list match always wins: a model is usable iff it is **not** blocked **and** (no allow-list is set **or** it is on the allow-list). Block-lists let you exclude a few models (e.g. costly `*-pro` tiers) without enumerating everything you want to keep, e.g. `OPENROUTER_DISALLOWED_MODELS=openai/gpt-5.5-pro`.
+- **`DYNAMIC_MODEL_SELECTION=1`** opts auto-mode into preferring the newest OpenAI flagships and remapping bare aliases (`flash`/`pro`/`flash-lite`) to the newest models. Unset (the default), OpenAI auto-selection and all bare-alias targets follow upstream behavior; Gemini auto-selection keeps upstream's reverse-alphabetical algorithm, which naturally favors the newest-numbered model available (so adding newer Gemini models advances the default Gemini pick).
+
+See [docs/configuration.md](docs/configuration.md) for the full reference.
+
 ## Core Tools
 
 > **Note:** Each tool comes with its own multi-step workflow, parameters, and descriptions that consume valuable context window space even when not in use. To optimize performance, some tools are disabled by default. See [Tool Configuration](#tool-configuration) below to enable them.

@@ -38,6 +38,10 @@ class ModelCapabilities:
     intelligence_score: int = 10  # Human-curated 1–20 score reflecting general capability
     description: str = ""
     aliases: list[str] = field(default_factory=list)
+    # Aliases that only take effect when DYNAMIC_MODEL_SELECTION is enabled. They override the
+    # default owner of the same alias so a bare alias (e.g. "flash"/"pro") can be remapped to the
+    # newest model without changing default resolution.
+    dynamic_aliases: list[str] = field(default_factory=list)
 
     # Capacity limits / resource budgets
     context_window: int = 0
