@@ -12,12 +12,13 @@ Allow-lists (``*_ALLOWED_MODELS``) — if set, ONLY the listed models are usable
 - OPENAI_ALLOWED_MODELS: Comma-separated list of allowed OpenAI models
 - GOOGLE_ALLOWED_MODELS: Comma-separated list of allowed Gemini models
 - XAI_ALLOWED_MODELS: Comma-separated list of allowed X.AI GROK models
+- DEEPSEEK_ALLOWED_MODELS: Comma-separated list of allowed DeepSeek models
 - OPENROUTER_ALLOWED_MODELS: Comma-separated list of allowed OpenRouter models
 - DIAL_ALLOWED_MODELS: Comma-separated list of allowed DIAL models
 
 Block-lists (``*_DISALLOWED_MODELS``) — the listed models are rejected:
 - OPENAI_DISALLOWED_MODELS, GOOGLE_DISALLOWED_MODELS, XAI_DISALLOWED_MODELS,
-  OPENROUTER_DISALLOWED_MODELS, DIAL_DISALLOWED_MODELS
+  DEEPSEEK_DISALLOWED_MODELS, OPENROUTER_DISALLOWED_MODELS, DIAL_DISALLOWED_MODELS
 
 Precedence: a block-list match always wins. A model is allowed iff it is NOT
 on the block-list AND (no allow-list is set OR it is on the allow-list). This
@@ -62,6 +63,7 @@ class ModelRestrictionService:
         ProviderType.OPENAI: "OPENAI_ALLOWED_MODELS",
         ProviderType.GOOGLE: "GOOGLE_ALLOWED_MODELS",
         ProviderType.XAI: "XAI_ALLOWED_MODELS",
+        ProviderType.DEEPSEEK: "DEEPSEEK_ALLOWED_MODELS",
         ProviderType.OPENROUTER: "OPENROUTER_ALLOWED_MODELS",
         ProviderType.DIAL: "DIAL_ALLOWED_MODELS",
     }
@@ -71,6 +73,7 @@ class ModelRestrictionService:
         ProviderType.OPENAI: "OPENAI_DISALLOWED_MODELS",
         ProviderType.GOOGLE: "GOOGLE_DISALLOWED_MODELS",
         ProviderType.XAI: "XAI_DISALLOWED_MODELS",
+        ProviderType.DEEPSEEK: "DEEPSEEK_DISALLOWED_MODELS",
         ProviderType.OPENROUTER: "OPENROUTER_DISALLOWED_MODELS",
         ProviderType.DIAL: "DIAL_DISALLOWED_MODELS",
     }

@@ -70,7 +70,14 @@ class TestAutoModeCustomProviderOnly:
         }
 
         # Clear all other provider keys
-        clear_keys = ["GEMINI_API_KEY", "OPENAI_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY", "DIAL_API_KEY"]
+        clear_keys = [
+            "GEMINI_API_KEY",
+            "OPENAI_API_KEY",
+            "XAI_API_KEY",
+            "DEEPSEEK_API_KEY",
+            "OPENROUTER_API_KEY",
+            "DIAL_API_KEY",
+        ]
 
         with patch.dict(os.environ, test_env, clear=False):
             # Ensure other provider keys are not set
@@ -109,7 +116,14 @@ class TestAutoModeCustomProviderOnly:
 
         with patch.dict(os.environ, test_env, clear=False):
             # Clear other provider keys
-            for key in ["GEMINI_API_KEY", "OPENAI_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY", "DIAL_API_KEY"]:
+            for key in [
+                "GEMINI_API_KEY",
+                "OPENAI_API_KEY",
+                "XAI_API_KEY",
+                "DEEPSEEK_API_KEY",
+                "OPENROUTER_API_KEY",
+                "DIAL_API_KEY",
+            ]:
                 if key in os.environ:
                     del os.environ[key]
 
@@ -177,7 +191,14 @@ class TestAutoModeCustomProviderOnly:
 
         with patch.dict(os.environ, test_env, clear=False):
             # Clear other provider keys
-            for key in ["GEMINI_API_KEY", "OPENAI_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY", "DIAL_API_KEY"]:
+            for key in [
+                "GEMINI_API_KEY",
+                "OPENAI_API_KEY",
+                "XAI_API_KEY",
+                "DEEPSEEK_API_KEY",
+                "OPENROUTER_API_KEY",
+                "DIAL_API_KEY",
+            ]:
                 if key in os.environ:
                     del os.environ[key]
 

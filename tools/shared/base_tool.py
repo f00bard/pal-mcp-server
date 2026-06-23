@@ -474,6 +474,7 @@ class BaseTool(ABC):
             "OPENAI_ALLOWED_MODELS": "OpenAI",
             "GOOGLE_ALLOWED_MODELS": "Google",
             "XAI_ALLOWED_MODELS": "X.AI",
+            "DEEPSEEK_ALLOWED_MODELS": "DeepSeek",
             "OPENROUTER_ALLOWED_MODELS": "OpenRouter",
             "DIAL_ALLOWED_MODELS": "DIAL",
         }

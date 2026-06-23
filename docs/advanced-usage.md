@@ -49,6 +49,8 @@ Regardless of your default configuration, you can specify models per request:
 | **`gpt5-nano`** (GPT-5 Nano) | OpenAI | 400K tokens | Fastest, cheapest GPT-5 variant | Summarization and classification tasks |
 | **`grok-4`** | X.AI | 256K tokens | Latest flagship Grok model with reasoning, vision | Complex analysis, reasoning tasks |
 | **`grok-4.1-fast-reasoning`** | X.AI | 2M tokens | High-performance Grok 4.1 Fast Reasoning with vision | Fast responses and light reasoning |
+| **`deepseek-v4-pro`** (alias `deepseek`) | DeepSeek | 1M tokens | Frontier reasoning model, extended thinking on by default | Complex reasoning, coding tasks |
+| **`deepseek-v4-flash`** (alias `deepseek-flash`) | DeepSeek | 1M tokens | Fast reasoning model, extended thinking on by default | Fast responses with reasoning |
 | **`llama`** (Llama 3.2) | Custom/Local | 128K tokens | Local inference, privacy | On-device analysis, cost-free processing |
 | **Any model** | OpenRouter | Varies | Access to GPT-4, Claude, Llama, etc. | User-specified or based on task requirements |
 
@@ -72,6 +74,7 @@ cloud models (expensive/powerful) AND local models (free/private) in the same co
   - **GPT-5 Mini**: Balanced efficiency and capability
   - **GPT-5 Nano**: Optimized for fast, low-cost tasks
 - **Grok-4 / Grok-4.1-fast-reasoning**: Extended thinking support, vision capabilities (256K / 2M context)
+- **DeepSeek V4 Pro / V4 Flash**: Extended thinking on by default, function calling + JSON mode, 1M context (text-only)
 
 ## Model Usage Restrictions
 

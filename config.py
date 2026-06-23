@@ -42,7 +42,7 @@ def dynamic_model_selection_enabled() -> bool:
     return (get_env("DYNAMIC_MODEL_SELECTION", "") or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
-# Each provider (gemini.py, openai.py, xai.py, dial.py, openrouter.py, custom.py, azure_openai.py)
+# Each provider (gemini.py, openai.py, xai.py, deepseek.py, dial.py, openrouter.py, custom.py, azure_openai.py)
 # defines its own MODEL_CAPABILITIES
 # with detailed descriptions. Tools use ModelProviderRegistry.get_available_model_names()
 # to get models only from enabled providers (those with valid API keys).

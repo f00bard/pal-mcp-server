@@ -49,6 +49,12 @@ else
     echo "❌ XAI_API_KEY not found"
 fi
 
+if [[ -n "$DEEPSEEK_API_KEY" ]] || grep -q "DEEPSEEK_API_KEY=" .env 2>/dev/null; then
+    echo "✅ DEEPSEEK_API_KEY configured"
+else
+    echo "❌ DEEPSEEK_API_KEY not found"
+fi
+
 if [[ -n "$OPENROUTER_API_KEY" ]] || grep -q "OPENROUTER_API_KEY=" .env 2>/dev/null; then
     echo "✅ OPENROUTER_API_KEY configured"
 else

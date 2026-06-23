@@ -37,6 +37,10 @@ OPENAI_API_KEY=your_openai_api_key_here
 # X.AI GROK API
 XAI_API_KEY=your_xai_api_key_here
 # Get from: https://console.x.ai/
+
+# DeepSeek API
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+# Get from: https://platform.deepseek.com/
 ```
 
 **Option 2: OpenRouter (Access multiple models through one API)**
@@ -82,6 +86,7 @@ With `DYNAMIC_MODEL_SELECTION` unset, auto-mode uses upstream's selection *algor
   - `conf/openai_models.json` – OpenAI catalogue (can be overridden with `OPENAI_MODELS_CONFIG_PATH`)
   - `conf/gemini_models.json` – Gemini catalogue (`GEMINI_MODELS_CONFIG_PATH`)
   - `conf/xai_models.json` – X.AI / GROK catalogue (`XAI_MODELS_CONFIG_PATH`)
+  - `conf/deepseek_models.json` – DeepSeek catalogue (`DEEPSEEK_MODELS_CONFIG_PATH`)
   - `conf/openrouter_models.json` – OpenRouter catalogue (`OPENROUTER_MODELS_CONFIG_PATH`)
   - `conf/dial_models.json` – DIAL aggregation catalogue (`DIAL_MODELS_CONFIG_PATH`)
   - `conf/custom_models.json` – Custom/OpenAI-compatible endpoints (`CUSTOM_MODELS_CONFIG_PATH`)
@@ -95,6 +100,7 @@ With `DYNAMIC_MODEL_SELECTION` unset, auto-mode uses upstream's selection *algor
   | OpenAI | `gpt-5.2`, `gpt-5.1-codex`, `gpt-5.1-codex-mini`, `gpt-5`, `gpt-5.2-pro`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-codex`, `gpt-4.1`, `o3`, `o3-mini`, `o3-pro`, `o4-mini` | `gpt5.2`, `gpt-5.2`, `5.2`, `gpt5.1-codex`, `codex-5.1`, `codex-mini`, `gpt5`, `gpt5pro`, `mini`, `nano`, `codex`, `o3mini`, `o3pro`, `o4mini` |
   | Gemini | `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-2.0-flash-lite` | `pro`, `gemini-pro`, `flash`, `flash-2.0`, `flashlite` |
   | X.AI | `grok-4`, `grok-4.1-fast` | `grok`, `grok4`, `grok-4.1-fast-reasoning` |
+  | DeepSeek | `deepseek-v4-pro`, `deepseek-v4-flash`, `deepseek-chat`, `deepseek-reasoner` | `deepseek`, `deepseek-pro`, `deepseek-flash` |
   | OpenRouter | See `conf/openrouter_models.json` for the continually evolving catalogue | e.g., `opus`, `sonnet`, `flash`, `pro`, `mistral` |
   | Custom | User-managed entries such as `llama3.2` | Define your own aliases per entry |
 
@@ -192,11 +198,14 @@ GOOGLE_ALLOWED_MODELS=flash,pro
 # X.AI GROK model restrictions
 XAI_ALLOWED_MODELS=grok-4,grok-4.1-fast-reasoning
 
+# DeepSeek model restrictions
+DEEPSEEK_ALLOWED_MODELS=deepseek-v4-pro,deepseek-v4-flash
+
 # OpenRouter model restrictions (affects models via custom provider)
 OPENROUTER_ALLOWED_MODELS=opus,sonnet,mistral
 ```
 
-**Block-lists (`*_DISALLOWED_MODELS`):** the complement of the allow-lists — reject specific models while leaving the provider otherwise open. A block-list match always wins, so a model is usable iff it is **not** blocked **and** (no allow-list is set **or** it is on the allow-list). Use this to exclude a few models (e.g. costly `*-pro` tiers) without enumerating every model you want to keep. Available for `OPENAI_`, `GOOGLE_`, `XAI_`, `OPENROUTER_`, and `DIAL_`.
+**Block-lists (`*_DISALLOWED_MODELS`):** the complement of the allow-lists — reject specific models while leaving the provider otherwise open. A block-list match always wins, so a model is usable iff it is **not** blocked **and** (no allow-list is set **or** it is on the allow-list). Use this to exclude a few models (e.g. costly `*-pro` tiers) without enumerating every model you want to keep. Available for `OPENAI_`, `GOOGLE_`, `XAI_`, `DEEPSEEK_`, `OPENROUTER_`, and `DIAL_`.
 
 ```env
 # Block specific models; everything else stays available
@@ -238,6 +247,7 @@ XAI_ALLOWED_MODELS=grok,grok-4.1-fast-reasoning
 OPENAI_MODELS_CONFIG_PATH=/path/to/openai_models.json
 GEMINI_MODELS_CONFIG_PATH=/path/to/gemini_models.json
 XAI_MODELS_CONFIG_PATH=/path/to/xai_models.json
+DEEPSEEK_MODELS_CONFIG_PATH=/path/to/deepseek_models.json
 OPENROUTER_MODELS_CONFIG_PATH=/path/to/openrouter_models.json
 DIAL_MODELS_CONFIG_PATH=/path/to/dial_models.json
 CUSTOM_MODELS_CONFIG_PATH=/path/to/custom_models.json
@@ -271,6 +281,7 @@ OPENAI_API_KEY=your-openai-key
 GOOGLE_ALLOWED_MODELS=flash,pro
 OPENAI_ALLOWED_MODELS=gpt-5.1-codex-mini,gpt-5-mini,o4-mini
 XAI_API_KEY=your-xai-key
+DEEPSEEK_API_KEY=your-deepseek-key
 LOG_LEVEL=DEBUG
 CONVERSATION_TIMEOUT_HOURS=1
 ```

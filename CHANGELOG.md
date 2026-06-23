@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## Unreleased
+
+### Features
+
+- **providers**: Add DeepSeek as a native provider (`DEEPSEEK_API_KEY`). Exposes
+  `deepseek-v4-pro`/`deepseek-v4-flash` (aliases `deepseek`, `deepseek-pro`,
+  `deepseek-flash`) plus legacy `deepseek-chat`/`deepseek-reasoner`. Configured via
+  `conf/deepseek_models.json` with `DEEPSEEK_ALLOWED_MODELS`/`DEEPSEEK_DISALLOWED_MODELS`
+  restriction support.
+
+
 ## v9.8.2 (2025-12-15)
 
 ### Bug Fixes

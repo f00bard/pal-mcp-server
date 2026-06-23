@@ -54,7 +54,14 @@ class TestModelEnumeration:
     def _setup_environment(self, provider_config):
         """Helper to set up environment variables for testing."""
         # Clear all provider-related env vars first
-        for key in ["GEMINI_API_KEY", "OPENAI_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY", "CUSTOM_API_URL"]:
+        for key in [
+            "GEMINI_API_KEY",
+            "OPENAI_API_KEY",
+            "XAI_API_KEY",
+            "DEEPSEEK_API_KEY",
+            "OPENROUTER_API_KEY",
+            "CUSTOM_API_URL",
+        ]:
             if key in os.environ:
                 del os.environ[key]
 

@@ -77,6 +77,7 @@ class TestAutoModeComprehensive:
                     "GEMINI_API_KEY": "real-key",
                     "OPENAI_API_KEY": None,
                     "XAI_API_KEY": None,
+                    "DEEPSEEK_API_KEY": None,
                     "OPENROUTER_API_KEY": None,
                 },
                 {
@@ -91,6 +92,7 @@ class TestAutoModeComprehensive:
                     "GEMINI_API_KEY": None,
                     "OPENAI_API_KEY": "real-key",
                     "XAI_API_KEY": None,
+                    "DEEPSEEK_API_KEY": None,
                     "OPENROUTER_API_KEY": None,
                 },
                 {
@@ -105,6 +107,7 @@ class TestAutoModeComprehensive:
                     "GEMINI_API_KEY": None,
                     "OPENAI_API_KEY": None,
                     "XAI_API_KEY": "real-key",
+                    "DEEPSEEK_API_KEY": None,
                     "OPENROUTER_API_KEY": None,
                 },
                 {
@@ -119,6 +122,7 @@ class TestAutoModeComprehensive:
                     "GEMINI_API_KEY": "real-key",
                     "OPENAI_API_KEY": "real-key",
                     "XAI_API_KEY": None,
+                    "DEEPSEEK_API_KEY": None,
                     "OPENROUTER_API_KEY": None,
                 },
                 {
@@ -133,6 +137,7 @@ class TestAutoModeComprehensive:
                     "GEMINI_API_KEY": "real-key",
                     "OPENAI_API_KEY": "real-key",
                     "XAI_API_KEY": "real-key",
+                    "DEEPSEEK_API_KEY": None,
                     "OPENROUTER_API_KEY": None,
                 },
                 {
@@ -208,6 +213,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": "real-key",
             "OPENAI_API_KEY": None,
             "XAI_API_KEY": None,
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": None,
             "DEFAULT_MODEL": "auto",
         }
@@ -246,6 +252,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": "real-key",
             "OPENAI_API_KEY": None,
             "XAI_API_KEY": None,
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": None,
             "CUSTOM_API_URL": None,
             "DEFAULT_MODEL": "auto",
@@ -303,6 +310,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": "real-key",
             "OPENAI_API_KEY": "real-key",
             "XAI_API_KEY": "real-key",
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": None,  # Don't include OpenRouter to avoid infinite models
             "DEFAULT_MODEL": "auto",
         }
@@ -352,6 +360,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": "real-key",
             "OPENAI_API_KEY": None,
             "XAI_API_KEY": None,
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": None,
             "DEFAULT_MODEL": "auto",
         }
@@ -403,6 +412,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": "real-key",
             "OPENAI_API_KEY": "real-key",
             "XAI_API_KEY": None,
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": None,
             "DEFAULT_MODEL": "auto",
             "OPENAI_ALLOWED_MODELS": "o4-mini",  # Restrict OpenAI to only o4-mini
@@ -451,6 +461,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": None,
             "OPENAI_API_KEY": None,
             "XAI_API_KEY": None,
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": "real-key",
             "DEFAULT_MODEL": "auto",
         }
@@ -503,6 +514,7 @@ class TestAutoModeComprehensive:
             "GEMINI_API_KEY": "real-key",
             "OPENAI_API_KEY": None,
             "XAI_API_KEY": None,
+            "DEEPSEEK_API_KEY": None,
             "OPENROUTER_API_KEY": None,
             "DEFAULT_MODEL": "auto",
         }

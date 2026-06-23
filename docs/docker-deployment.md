@@ -41,6 +41,9 @@ OPENAI_API_KEY=your_openai_api_key_here
 # X.AI GROK
 XAI_API_KEY=your_xai_api_key_here
 
+# DeepSeek
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+
 # OpenRouter (unified access)
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 
