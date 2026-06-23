@@ -609,6 +609,12 @@ class OpenAICompatibleProvider(ModelProvider):
                     continue  # Skip unsupported parameters for reasoning models
                 completion_params[key] = value
 
+        # Forward extra_body verbatim so callers can pass top-level request body
+        # fields (e.g. OpenRouter 'plugins') that fall outside the fixed whitelist above.
+        extra_body = kwargs.get("extra_body")
+        if extra_body:
+            completion_params["extra_body"] = extra_body
+
         # Check if this model needs the Responses API endpoint
         # Prefer capability metadata; fall back to static map when capabilities unavailable
         use_responses_api = False

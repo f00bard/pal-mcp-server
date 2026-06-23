@@ -441,3 +441,108 @@ class TestOpenRouterCatalogue:
                 key = alias.lower()
                 assert key not in seen, f"alias '{alias}' claimed by both {seen[key]} and {m['model_name']}"
                 seen[key] = m["model_name"]
+
+
+class TestFusionPanelSelection:
+    """Fusion-family alias -> wire model + plugin preset resolution."""
+
+    def _provider(self):
+        return OpenRouterProvider(api_key="test-key")
+
+    def _plugin(self, extra_body):
+        assert extra_body and "plugins" in extra_body
+        plugins = extra_body["plugins"]
+        assert len(plugins) == 1
+        assert plugins[0]["id"] == "fusion"
+        return plugins[0]
+
+    def test_fusion_high_resolves_to_wire_with_preset(self):
+        """fusion-high -> openrouter/fusion with general-high preset."""
+        wire, extra_body = self._provider()._resolve_fusion_request("fusion-high")
+        assert wire == "openrouter/fusion"
+        assert self._plugin(extra_body)["preset"] == "general-high"
+
+    def test_fusion_budget_resolves_to_wire_with_preset(self):
+        """fusion-budget -> openrouter/fusion with general-budget preset."""
+        wire, extra_body = self._provider()._resolve_fusion_request("fusion-budget")
+        assert wire == "openrouter/fusion"
+        assert self._plugin(extra_body)["preset"] == "general-budget"
+
+    def test_canonical_variant_name_also_resolves(self):
+        """The canonical model name (not just the alias) is detected as fusion."""
+        wire, extra_body = self._provider()._resolve_fusion_request("openrouter/fusion-budget")
+        assert wire == "openrouter/fusion"
+        assert self._plugin(extra_body)["preset"] == "general-budget"
+
+    def test_bare_fusion_uses_env_preset_default(self):
+        """Bare fusion defaults to general-high when OPENROUTER_FUSION_PRESET is unset."""
+        with patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("OPENROUTER_FUSION_PRESET", None)
+            wire, extra_body = self._provider()._resolve_fusion_request("fusion")
+        assert wire == "openrouter/fusion"
+        assert self._plugin(extra_body)["preset"] == "general-high"
+
+    def test_bare_fusion_honours_env_preset_override(self):
+        """OPENROUTER_FUSION_PRESET overrides the bare-fusion default preset."""
+        with patch.dict(os.environ, {"OPENROUTER_FUSION_PRESET": "general-budget"}):
+            wire, extra_body = self._provider()._resolve_fusion_request("fusion")
+        assert wire == "openrouter/fusion"
+        assert self._plugin(extra_body)["preset"] == "general-budget"
+
+    def test_env_overrides_panel_judge_and_tool_calls(self):
+        """ANALYSIS_MODELS/JUDGE/MAX_TOOL_CALLS map to analysis_models/model/max_tool_calls."""
+        env = {
+            "OPENROUTER_FUSION_ANALYSIS_MODELS": "openai/gpt-5, anthropic/claude-opus-4.5",
+            "OPENROUTER_FUSION_JUDGE": "openai/gpt-5.2",
+            "OPENROUTER_FUSION_MAX_TOOL_CALLS": "5",
+        }
+        with patch.dict(os.environ, env):
+            _, extra_body = self._provider()._resolve_fusion_request("fusion")
+        plugin = self._plugin(extra_body)
+        assert plugin["analysis_models"] == ["openai/gpt-5", "anthropic/claude-opus-4.5"]
+        assert plugin["model"] == "openai/gpt-5.2"
+        assert plugin["max_tool_calls"] == 5
+
+    def test_invalid_max_tool_calls_is_ignored(self):
+        """A non-integer OPENROUTER_FUSION_MAX_TOOL_CALLS is dropped, not fatal."""
+        with patch.dict(os.environ, {"OPENROUTER_FUSION_MAX_TOOL_CALLS": "lots"}):
+            _, extra_body = self._provider()._resolve_fusion_request("fusion")
+        assert "max_tool_calls" not in self._plugin(extra_body)
+
+    def test_non_fusion_model_is_passthrough(self):
+        """Ordinary models are not treated as fusion requests."""
+        assert self._provider()._resolve_fusion_request("openai/gpt-5") == (None, None)
+
+    def test_generate_content_sends_wire_model_and_extra_body(self):
+        """End-to-end: generate_content rewrites the model and forwards plugins to the API."""
+        captured = {}
+
+        def capture_create(**kwargs):
+            captured.update(kwargs)
+            response = Mock()
+            response.choices = [Mock(message=Mock(content="ok"), finish_reason="stop")]
+            response.model = "openrouter/fusion"
+            response.id = "id-1"
+            response.created = 0
+            response.usage = Mock(prompt_tokens=1, completion_tokens=1, total_tokens=2)
+            return response
+
+        mock_client = Mock()
+        mock_client.chat.completions.create = capture_create
+
+        # Reset the restriction-service singleton so a leaked allow-list from an
+        # earlier test cannot reject the (unrestricted) fusion wire model.
+        import utils.model_restrictions as restrictions
+
+        with (
+            patch.dict(os.environ, {}, clear=False),
+            patch.object(OpenRouterProvider, "client", new_callable=lambda: property(lambda self: mock_client)),
+        ):
+            os.environ.pop("OPENROUTER_ALLOWED_MODELS", None)
+            restrictions._restriction_service = None
+            provider = self._provider()
+            provider.generate_content(prompt="hi", model_name="fusion-high", temperature=0.5)
+        restrictions._restriction_service = None
+
+        assert captured["model"] == "openrouter/fusion"
+        assert captured["extra_body"]["plugins"][0]["preset"] == "general-high"

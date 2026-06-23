@@ -25,6 +25,51 @@
   },
   "models": [
     {
+      "model_name": "openrouter/fusion",
+      "aliases": [
+        "fusion"
+      ],
+      "context_window": 256000,
+      "max_output_tokens": 64000,
+      "supports_extended_thinking": false,
+      "supports_json_mode": false,
+      "supports_function_calling": false,
+      "supports_images": false,
+      "max_image_size_mb": 0.0,
+      "description": "OpenRouter Fusion - multi-model panel deliberation with a judge for synthesis. Default panel preset from OPENROUTER_FUSION_PRESET (general-high); override panel/judge via OPENROUTER_FUSION_ANALYSIS_MODELS / _JUDGE / _MAX_TOOL_CALLS.",
+      "intelligence_score": 18
+    },
+    {
+      "model_name": "openrouter/fusion-high",
+      "aliases": [
+        "fusion-high"
+      ],
+      "context_window": 256000,
+      "max_output_tokens": 64000,
+      "supports_extended_thinking": false,
+      "supports_json_mode": false,
+      "supports_function_calling": false,
+      "supports_images": false,
+      "max_image_size_mb": 0.0,
+      "description": "OpenRouter Fusion (general-high panel) - the strongest all-round multi-model panel with a frontier judge.",
+      "intelligence_score": 18
+    },
+    {
+      "model_name": "openrouter/fusion-budget",
+      "aliases": [
+        "fusion-budget"
+      ],
+      "context_window": 256000,
+      "max_output_tokens": 64000,
+      "supports_extended_thinking": false,
+      "supports_json_mode": false,
+      "supports_function_calling": false,
+      "supports_images": false,
+      "max_image_size_mb": 0.0,
+      "description": "OpenRouter Fusion (general-budget panel) - a cheaper panel with a frontier judge for strong synthesis at lower cost.",
+      "intelligence_score": 16
+    },
+    {
       "model_name": "anthropic/claude-opus-4.5",
       "aliases": [
         "opus",

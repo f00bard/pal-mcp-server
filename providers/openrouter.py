@@ -1,6 +1,7 @@
 """OpenRouter provider implementation."""
 
 import logging
+from typing import Optional
 
 from utils.env import get_env
 
@@ -8,6 +9,7 @@ from .openai_compatible import OpenAICompatibleProvider
 from .registries.openrouter import OpenRouterModelRegistry
 from .shared import (
     ModelCapabilities,
+    ModelResponse,
     ProviderType,
     RangeTemperatureConstraint,
 )
@@ -42,6 +44,15 @@ class OpenRouterProvider(OpenAICompatibleProvider):
 
     # Model registry for managing configurations and aliases
     _registry: OpenRouterModelRegistry | None = None
+
+    # Fusion family: canonical model name -> panel preset (None = use env default).
+    # All variants share the same wire model; the preset/plugin selects the panel.
+    _FUSION_WIRE_MODEL = "openrouter/fusion"
+    _FUSION_VARIANT_PRESETS: dict[str, str | None] = {
+        "openrouter/fusion": None,
+        "openrouter/fusion-high": "general-high",
+        "openrouter/fusion-budget": "general-budget",
+    }
 
     def __init__(self, api_key: str, **kwargs):
         """Initialize OpenRouter provider.
@@ -215,3 +226,85 @@ class OpenRouterProvider(OpenAICompatibleProvider):
 
             capabilities[model_name] = config
         return capabilities
+
+    # ------------------------------------------------------------------
+    # Fusion panel selection
+    # ------------------------------------------------------------------
+
+    def _resolve_fusion_request(self, model_name: str) -> tuple[Optional[str], Optional[dict]]:
+        """Detect a Fusion-family request and build its wire model + extra_body.
+
+        Fusion variants (``fusion``/``fusion-high``/``fusion-budget``) all map to the
+        single wire model ``openrouter/fusion``; the panel is selected via a
+        ``plugins`` entry. The preset comes from the variant, falling back to
+        ``OPENROUTER_FUSION_PRESET`` (default ``general-high``) for bare ``fusion``.
+        Optional env vars override panel/judge/tool-call budget; per OpenRouter,
+        explicit ``analysis_models``/``model`` take precedence over the preset.
+
+        Returns ``(None, None)`` for non-Fusion requests.
+        """
+
+        config = self._registry.resolve(model_name) if self._registry else None
+        canonical = config.model_name if config else model_name
+        if canonical not in self._FUSION_VARIANT_PRESETS:
+            return None, None
+
+        preset = self._FUSION_VARIANT_PRESETS[canonical]
+        if preset is None:
+            preset = get_env("OPENROUTER_FUSION_PRESET", "general-high") or "general-high"
+
+        plugin: dict = {"id": "fusion"}
+        if preset:
+            plugin["preset"] = preset
+
+        analysis_models = get_env("OPENROUTER_FUSION_ANALYSIS_MODELS")
+        if analysis_models:
+            models = [m.strip() for m in analysis_models.split(",") if m.strip()]
+            if models:
+                plugin["analysis_models"] = models
+
+        judge = get_env("OPENROUTER_FUSION_JUDGE")
+        if judge and judge.strip():
+            plugin["model"] = judge.strip()
+
+        max_tool_calls = get_env("OPENROUTER_FUSION_MAX_TOOL_CALLS")
+        if max_tool_calls and max_tool_calls.strip():
+            try:
+                plugin["max_tool_calls"] = int(max_tool_calls.strip())
+            except ValueError:
+                logging.warning("Invalid OPENROUTER_FUSION_MAX_TOOL_CALLS=%r; ignoring", max_tool_calls)
+
+        return self._FUSION_WIRE_MODEL, {"plugins": [plugin]}
+
+    def generate_content(
+        self,
+        prompt: str,
+        model_name: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.3,
+        max_output_tokens: int | None = None,
+        images: list[str] | None = None,
+        **kwargs,
+    ) -> ModelResponse:
+        """Route Fusion-family aliases to the wire model with a panel plugin.
+
+        Non-Fusion requests fall straight through to the shared OpenAI-compatible
+        implementation unchanged.
+        """
+
+        wire_model, extra_body = self._resolve_fusion_request(model_name)
+        if wire_model is not None:
+            existing = kwargs.get("extra_body")
+            kwargs["extra_body"] = {**existing, **extra_body} if isinstance(existing, dict) else extra_body
+            logging.debug("Fusion request '%s' -> wire '%s' with extra_body=%s", model_name, wire_model, extra_body)
+            model_name = wire_model
+
+        return super().generate_content(
+            prompt,
+            model_name,
+            system_prompt=system_prompt,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+            images=images,
+            **kwargs,
+        )

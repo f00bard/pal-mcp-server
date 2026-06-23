@@ -76,6 +76,29 @@ cloud models (expensive/powerful) AND local models (free/private) in the same co
 - **Grok-4 / Grok-4.1-fast-reasoning**: Extended thinking support, vision capabilities (256K / 2M context)
 - **DeepSeek V4 Pro / V4 Flash**: Extended thinking on by default, function calling + JSON mode, 1M context (text-only)
 
+## OpenRouter Fusion (Multi-Model Panel)
+
+OpenRouter [Fusion](https://openrouter.ai/openrouter/fusion) runs a panel of several models, then a judge model synthesises their answers into a single response. PAL exposes it through three model aliases so you can pick a panel preset per request:
+
+| Alias | Panel preset | Use when |
+|-------|--------------|----------|
+| `fusion` | `OPENROUTER_FUSION_PRESET` (default `general-high`) | Default fusion behaviour |
+| `fusion-high` | `general-high` — the strongest all-round panel | Maximum quality |
+| `fusion-budget` | `general-budget` — cheaper panel, frontier judge | Strong synthesis at lower cost |
+
+Example: *"chat with fusion-budget about this design"*. All three aliases route to the `openrouter/fusion` wire model with the appropriate panel plugin.
+
+**Environment overrides** (apply to any fusion request; explicit `analysis_models`/judge take precedence over the preset):
+
+```env
+OPENROUTER_FUSION_PRESET=general-high                 # preset for the bare `fusion` alias
+OPENROUTER_FUSION_ANALYSIS_MODELS=openai/gpt-5.2,anthropic/claude-opus-4.5  # custom panel (1-8 models)
+OPENROUTER_FUSION_JUDGE=openai/gpt-5.2                 # judge/synthesis model
+OPENROUTER_FUSION_MAX_TOOL_CALLS=8                     # panel tool-call budget (1-16)
+```
+
+> ⚠️ **Cost & latency:** Fusion invokes N panel models **plus** a judge **plus** a synthesis step, so it is meaningfully more expensive and slower than a single model. Only the `general-high` and `general-budget` presets exist today.
+
 ## Model Usage Restrictions
 
 **For complete restriction configuration**, see the [Configuration Guide](configuration.md#model-usage-restrictions).
